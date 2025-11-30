@@ -82,15 +82,28 @@ class StatsView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         if (data.isEmpty()) return
 
-        var startAngle = -90f
+        // We will draw the first arc last to make it appear on top
+        val firstDatum = data.firstOrNull() ?: return
+        val firstAngle = firstDatum * 360f
+        val firstColor = colors.getOrElse(0) { generateRandomColor() }
 
-        data.forEachIndexed { index, datum ->
+        var currentStartAngle = -90f + firstAngle
+
+        // Draw arcs from the second to the last
+        for (i in 1 until data.size) {
+            val datum = data[i]
             val angle = datum * 360f
+            if (angle > 0) {
+                paint.color = colors.getOrElse(i) { generateRandomColor() }
+                canvas.drawArc(oval, currentStartAngle, angle, false, paint)
+            }
+            currentStartAngle += angle
+        }
 
-            paint.color = colors.getOrElse(index) { generateRandomColor() }
-            canvas.drawArc(oval, startAngle, angle, false, paint)
-
-            startAngle += angle
+        // Draw the first arc
+        if (firstAngle > 0) {
+            paint.color = firstColor
+            canvas.drawArc(oval, -90f, firstAngle, false, paint)
         }
 
         canvas.drawText(
