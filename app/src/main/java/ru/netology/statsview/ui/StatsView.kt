@@ -40,7 +40,12 @@ class StatsView @JvmOverloads constructor(
 
     var data: List<Float> = emptyList()
         set(value) {
-            field = value
+            val sum = value.sum()
+            field = if (sum == 0F) {
+                emptyList()
+            } else {
+                value.map { it / sum }
+            }
             invalidate()
         }
 
@@ -89,7 +94,7 @@ class StatsView @JvmOverloads constructor(
         }
 
         canvas.drawText(
-            "%.2f%%".format(data.sum() * 100),
+            "%.2f%%".format(100F),
             center.x,
             center.y + textPaint.textSize / 4,
             textPaint
